@@ -852,7 +852,6 @@ void render()
     glClear(GL_COLOR_BUFFER_BIT);
     //
     r.bot = gl.yres - 20;
-    r.left = 10;
     r.center = 0;
     ggprint8b(&r, 16, 0x00ff0000, "3350 - Asteroids");
     ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
@@ -880,11 +879,6 @@ void render()
     glVertex2f(0.0f, 0.0f);
     glEnd();
     glPopMatrix();
-    //added to see if it would work there
-    /*if() 
-    {*/	
-    JCimage(500, 500, gl.JoshuaCTexture);
-    //}
     if (gl.keys[XK_Up] || g.mouseThrustOn) {
 	int i;
 	//draw thrust
@@ -953,6 +947,8 @@ void render()
 	glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
 	glEnd();
     }
+    //Added
+    JCimage(500, 500, gl.JoshuaCTexture);
 }
 
 
