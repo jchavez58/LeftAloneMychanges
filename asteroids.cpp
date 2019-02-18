@@ -26,6 +26,7 @@
 #include "JoshuaC.cpp"
 #include "bryanG.cpp"
 #include "kyT.cpp"
+#include "eddieE.cpp"
 
 //defined types
 typedef float Flt;
@@ -68,6 +69,7 @@ public:
 	GLuint JoshuaCTexture;
 	GLuint bryanTexture;
     GLuint kyTexture;
+	GLuint eddieTexture;
 	GLuint creditTexture;
 	int xres, yres;
 	char keys[65536];
@@ -133,12 +135,13 @@ public:
             unlink(ppmname);
     }
 };
-Image img[5] = {
+Image img[6] = {
 "./image/Credit_Background.png",
 "./image/Thang_Icon.png",
 "./image/JC.png",
 "./image/bryan_photo.png",
-"./image/ky.png"
+"./image/ky.png",
+"./image/eddie.png"
 };
 
 class Ship {
@@ -438,13 +441,12 @@ void init_opengl(void)
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
-	//TEXTURE FOR SHOW PICTURE
+	//TEXTURE FOR SHOW CREDIT SCREEN
 	glGenTextures(1, &gl.creditTexture);
 	glBindTexture(GL_TEXTURE_2D, gl.creditTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, img[0].width, img[0].height, 0, GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
-
 
 	//Texture For thang's Picture
 	glGenTextures(1, &gl.thangTexture);
@@ -470,7 +472,12 @@ void init_opengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, img[4].width, img[4].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
-
+    //texture for Eddie's picture
+    glGenTextures(1, &gl.eddieTexture);
+    glBindTexture(GL_TEXTURE_2D, gl.eddieTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[5].width, img[5].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[5].data); 
 }
 
 void normalize2d(Vec v)
@@ -1001,6 +1008,7 @@ void render()
         JCimage(1000, 700, gl.JoshuaCTexture);
 		showBryanPicture(1000, 500, gl.bryanTexture);
 		kyImage(1000, 300, gl.kyTexture);
+        showEddiePhoto(1000, 100, gl.eddieTexture);
     }
  
 
