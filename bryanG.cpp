@@ -1,7 +1,7 @@
 /*
     Author: Bryan Gutierrez
 */
-void showBryanPicture(int x, int y, GLuint textid) 
+void showBryanPicture (int x, int y, GLuint textid) 
 {
     Rect r;
 	glColor3ub(255,255,255);

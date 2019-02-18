@@ -3,7 +3,7 @@
  */
 
 
-void JCimage(int x, int y, GLuint textid)
+void JCimage (int x, int y, GLuint textid)
 {
     glColor3ub(255,255,255);
     static float angle = 0.0f;

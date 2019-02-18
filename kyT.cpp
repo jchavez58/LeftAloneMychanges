@@ -6,7 +6,7 @@
  *
  */
  
-void kyImage(int x, int y, GLuint textid) 
+void kyImage (int x, int y, GLuint textid) 
 {
      Rect r;
      glColor3ub(255,255,255);
