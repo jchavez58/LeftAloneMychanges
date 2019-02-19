@@ -22,11 +22,6 @@
 #include <GL/glx.h>
 #include "log.h"
 #include "fonts.h"
-#include "thangH.cpp"
-#include "JoshuaC.cpp"
-#include "bryanG.cpp"
-#include "kyT.cpp"
-#include "eddieE.cpp"
 
 //defined types
 typedef float Flt;
@@ -62,6 +57,7 @@ extern double timeSpan;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 //-----------------------------------------------------------------------------
+
 
 class Global {
 public:
@@ -996,19 +992,24 @@ void render()
 		glEnd();
 	}
    	if (gl.showCredit) {
-        glBindTexture(GL_TEXTURE_2D, gl.creditTexture);
-        glColor3ub(0,0,0);
-        glBegin(GL_QUADS);
-            glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
-            glTexCoord2f(0.0f, 0.0f); glVertex2i(0, gl.yres);
-            glTexCoord2f(1.0f, 0.0f); glVertex2i(gl.xres, gl.yres);
-            glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres, 0);
-        glEnd();
-        showThangPicture(1000,900, gl.thangTexture);
-        JCimage(1000, 700, gl.JoshuaCTexture);
+        	glBindTexture(GL_TEXTURE_2D, gl.creditTexture);
+        	glColor3ub(0,0,0);
+        	glBegin(GL_QUADS);
+            	glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
+            	glTexCoord2f(0.0f, 0.0f); glVertex2i(0, gl.yres);
+            	glTexCoord2f(1.0f, 0.0f); glVertex2i(gl.xres, gl.yres);
+            	glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres, 0);
+        	glEnd();
+		extern void showThangPicture(int x, int y, GLuint textid);
+		extern void JCimage(int x, int y, GLuint textid);
+		extern void showBryanPicture(int x, int y, GLuint textid);
+		extern void kyImage(int x, int y, GLuint textid);
+		extern void showEddiePhoto(int x, int y, GLuint textid);
+		showThangPicture(1000,900, gl.thangTexture);
+		JCimage(1000, 700, gl.JoshuaCTexture);
 		showBryanPicture(1000, 500, gl.bryanTexture);
 		kyImage(1000, 300, gl.kyTexture);
-        showEddiePhoto(1000, 100, gl.eddieTexture);
+		showEddiePhoto(1000, 100, gl.eddieTexture);
     }
  
 
