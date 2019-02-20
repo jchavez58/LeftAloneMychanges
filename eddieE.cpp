@@ -34,5 +34,5 @@ void showEddiePhoto (int x, int y, GLuint textid)
     r.bot = y - 20;
     r.left = x - wid/2 - 200;
     r.center = 0;
-    ggprint16(&r, 32, 0x00ff0000, "Eddie Ekpo");
+    ggprint16(&r, 32, 0x00ffff44, "Eddie Ekpo");
 }
