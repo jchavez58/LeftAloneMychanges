@@ -5,7 +5,13 @@
  * CMPS3350
  *
  */
- 
+#include "math.h"
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+#include "log.h"
+#include "fonts.h"
+
+
 void kyImage (int x, int y, GLuint textid) 
 {
      Rect r;

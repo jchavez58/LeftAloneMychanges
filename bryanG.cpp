@@ -1,6 +1,12 @@
 /*
     Author: Bryan Gutierrez
 */
+#include "math.h"
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+#include "log.h"
+#include "fonts.h"
+
 void showBryanPicture (int x, int y, GLuint textid) 
 {
     Rect r;

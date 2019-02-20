@@ -1,6 +1,11 @@
 /*
  *Author: Joshua C
  */
+#include "math.h"
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+#include "log.h"
+#include "fonts.h"
 
 
 void JCimage (int x, int y, GLuint textid)
