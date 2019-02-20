@@ -2,6 +2,12 @@
 * Author: Eddie Ekpo
 *
 */
+#include "math.h"
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+#include "log.h"
+#include "fonts.h"
+
 void showEddiePhoto (int x, int y, GLuint textid) 
 {
 	glColor3ub(255,255,255);
