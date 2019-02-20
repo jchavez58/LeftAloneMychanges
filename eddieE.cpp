@@ -8,8 +8,7 @@
 #include "log.h"
 #include "fonts.h"
 
-void showEddiePhoto (int x, int y, GLuint textid) 
-{
+void showEddiePhoto (int x, int y, GLuint textid) {
 	glColor3ub(255,255,255);
 	//static float angle = 0.0f;
 	static int wid = 100;
