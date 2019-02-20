@@ -132,7 +132,7 @@ public:
     }
 };
 Image img[6] = {
-"./image/Credit_Background.png",
+"./image/Credit_Background.jpg",
 "./image/Thang_Icon.png",
 "./image/JC.png",
 "./image/bryan_photo.png",
