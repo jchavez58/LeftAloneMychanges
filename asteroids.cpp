@@ -991,6 +991,11 @@ void render()
 		glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
 		glEnd();
 	}
+	extern void showThangPicture(int x, int y, GLuint textid);
+	extern void JCimage(int x, int y, GLuint textid);
+	extern void showBryanPicture(int x, int y, GLuint textid);
+	extern void kyImage(int x, int y, GLuint textid);
+	extern void showEddiePhoto(int x, int y, GLuint textid);
    	if (gl.showCredit) {
         	glBindTexture(GL_TEXTURE_2D, gl.creditTexture);
         	glColor3ub(0,0,0);
@@ -1000,16 +1005,11 @@ void render()
             	glTexCoord2f(1.0f, 0.0f); glVertex2i(gl.xres, gl.yres);
             	glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres, 0);
         	glEnd();
-		extern void showThangPicture(int x, int y, GLuint textid);
-		extern void JCimage(int x, int y, GLuint textid);
-		extern void showBryanPicture(int x, int y, GLuint textid);
-		extern void kyImage(int x, int y, GLuint textid);
-		extern void showEddiePhoto(int x, int y, GLuint textid);
-		showThangPicture(1000,900, gl.thangTexture);
-		JCimage(1000, 700, gl.JoshuaCTexture);
-		showBryanPicture(1000, 500, gl.bryanTexture);
-		kyImage(1000, 300, gl.kyTexture);
-		showEddiePhoto(1000, 100, gl.eddieTexture);
+		showThangPicture(1200,1000, gl.thangTexture);
+		JCimage(1200, 800, gl.JoshuaCTexture);
+		showBryanPicture(1200, 600, gl.bryanTexture);
+		kyImage(1200, 400, gl.kyTexture);
+		showEddiePhoto(1200, 200, gl.eddieTexture);
     }
  
 
