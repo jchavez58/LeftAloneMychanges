@@ -57,10 +57,30 @@ extern double timeSpan;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 //-----------------------------------------------------------------------------
+class Image;
+
+class Sprite {
+public:
+    int onoff;
+    int frame;
+    double delay;
+    Vec pos;
+    Image *image;
+    GLuint tex;
+    struct timespec time;
+    Sprite() {
+        onoff = 0;
+        frame = 0;
+        image = NULL;
+        delay = 0.1;
+    }
+};
 
 
 class Global {
 public:
+	Image *playerImage;
+	GLuint playerTexture;
     GLuint thangTexture;
 	GLuint JoshuaCTexture;
 	GLuint bryanTexture;
@@ -70,11 +90,13 @@ public:
 	int xres, yres;
 	char keys[65536];
     int showCredit;
+	int player;
 	Global() {
 		xres = 1250;
 		yres = 900;
 		memset(keys, 0, 65536);
         showCredit = 0;
+		player = 1;
 	}
 } gl;
 
@@ -131,14 +153,46 @@ public:
             unlink(ppmname);
     }
 };
-Image img[6] = {
+Image img[7] = {
 "./image/Credit_Background.jpg",
 "./image/Thang_Icon.png",
 "./image/JC.png",
 "./image/bryan_photo.png",
 "./image/ky.png",
-"./image/eddie.png"
+"./image/eddie.png",
+"./image/walk.gif"
 };
+
+unsigned char *buildAlphaData(Image *img)
+{
+    //add 4th component to RGB stream...
+    int i;
+    unsigned char *newdata, *ptr;
+    unsigned char *data = (unsigned char *)img->data;
+    newdata = (unsigned char *)malloc(img->width * img->height * 4);
+    ptr = newdata;
+    unsigned char a,b,c;
+    //use the first pixel in the image as the transparent color.
+    unsigned char t0 = *(data+0);
+    unsigned char t1 = *(data+1);
+    unsigned char t2 = *(data+2);
+    for (i=0; i<img->width * img->height * 3; i+=3) {
+        a = *(data+0);
+        b = *(data+1);
+        c = *(data+2);
+        *(ptr+0) = a;
+        *(ptr+1) = b;
+        *(ptr+2) = c;
+        *(ptr+3) = 1;
+        if (a==t0 && b==t1 && c==t2)
+            *(ptr+3) = 0;
+        //-----------------------------------------------
+        ptr += 4;
+        data += 3;
+    }
+    return newdata;
+}
+
 
 class Ship {
 public:
@@ -473,7 +527,22 @@ void init_opengl(void)
     glBindTexture(GL_TEXTURE_2D, gl.eddieTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[5].width, img[5].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[5].data); 
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[5].width, img[5].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[5].data);
+	//texture for Player's sprite
+	glGenTextures(1, &gl.playerTexture);
+    //-------------------------------------------------------------------------
+    //silhouette
+    //this is similar to a sprite graphic
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.playerTexture);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    //
+    //must build a new set of data...
+    unsigned char *playerData = buildAlphaData(&img[6]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img[6].width, img[6].height, 0, GL_RGBA, GL_UNSIGNED_BYTE, playerData);
+    free(playerData);
 }
 
 void normalize2d(Vec v)
@@ -684,6 +753,7 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 
 void physics()
 {
+	/*
 	Flt d0,d1,dist;
 	//Update ship position
 	g.ship.pos[0] += g.ship.vel[0];
@@ -738,7 +808,7 @@ void physics()
 		i++;
 	}
 	//
-	//Update asteroid positions
+	//Update asteroid positions 
 	Asteroid *a = g.ahead;
 	while (a) {
 		a->pos[0] += a->vel[0];
@@ -816,6 +886,7 @@ void physics()
 			break;
 		a = a->next;
 	}
+	*/
 	//---------------------------------------------------
 	//check keys pressed now
 	if (gl.keys[XK_Left]) {
@@ -902,6 +973,7 @@ void render()
     ggprint8b(&r, 16, 0x00ffff00, "c credit screen");
 	//-------------------------------------------------------------------------
 	//Draw the ship
+	/*
 	glColor3fv(g.ship.color);
 	glPushMatrix();
 	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
@@ -991,11 +1063,13 @@ void render()
 		glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
 		glEnd();
 	}
+	*/
 	extern void showThangPicture(int x, int y, GLuint textid);
 	extern void JCimage(int x, int y, GLuint textid);
 	extern void showBryanPicture(int x, int y, GLuint textid);
 	extern void kyImage(int x, int y, GLuint textid);
 	extern void showEddiePhoto(int x, int y, GLuint textid);
+	extern void playerSprite(int x, int y, GLuint textid);
    	if (gl.showCredit) {
         	glBindTexture(GL_TEXTURE_2D, gl.creditTexture);
         	glColor3ub(0,0,0);
@@ -1011,7 +1085,16 @@ void render()
 		kyImage(1200, 400, gl.kyTexture);
 		showEddiePhoto(1200, 200, gl.eddieTexture);
     }
- 
-
+	if (gl.player) {
+		glBindTexture(GL_TEXTURE_2D, gl.playerTexture);
+		glColor3ub(0,0,0);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(0, 20);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(20, 20);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(20, 0);
+		glEnd();
+		playerSprite(200, 200, gl.playerTexture);
+	}
 }
 
