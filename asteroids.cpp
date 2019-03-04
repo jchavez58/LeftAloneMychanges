@@ -1,6 +1,7 @@
 //
 //program: asteroids.cpp
 //author:  Gordon Griesel
+//modified by: Joshua Chavez
 //date:    2014 - 2018
 //modified by: Thang Hin
 //year of modification: spring 2019
@@ -36,8 +37,8 @@ typedef Flt	Matrix[4][4];
 #define VecCopy(a,b) (b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2]
 #define VecDot(a,b)	((a)[0]*(b)[0]+(a)[1]*(b)[1]+(a)[2]*(b)[2])
 #define VecSub(a,b,c) (c)[0]=(a)[0]-(b)[0]; \
-						(c)[1]=(a)[1]-(b)[1]; \
-						(c)[2]=(a)[2]-(b)[2]
+							 (c)[1]=(a)[1]-(b)[1]; \
+                             (c)[2]=(a)[2]-(b)[2]
 //constants
 const float timeslice = 1.0f;
 const float gravity = -0.2f;
@@ -77,25 +78,29 @@ public:
 };
 
 
+
 class Global {
 public:
 	Image *playerImage;
 	GLuint playerTexture;
-    GLuint thangTexture;
+  GLuint thangTexture;
 	GLuint JoshuaCTexture;
 	GLuint bryanTexture;
-    GLuint kyTexture;
+  GLuint kyTexture;
 	GLuint eddieTexture;
 	GLuint creditTexture;
+  GLuint titleTexture;
 	int xres, yres;
 	char keys[65536];
-    int showCredit;
+  int showCredit;
+  int showGame;
 	int player;
 	Global() {
 		xres = 1250;
 		yres = 900;
 		memset(keys, 0, 65536);
-        showCredit = 0;
+    showCredit = 0;
+    showGame = 0;
 		player = 1;
 	}
 } gl;
@@ -153,7 +158,7 @@ public:
             unlink(ppmname);
     }
 };
-Image img[7] = {
+Image img[8] = {
 "./image/Credit_Background.jpg",
 "./image/Thang_Icon.png",
 "./image/JC.png",
@@ -161,6 +166,7 @@ Image img[7] = {
 "./image/ky.png",
 "./image/eddie.png",
 "./image/walk.gif"
+"./image/forest.png"
 };
 
 unsigned char *buildAlphaData(Image *img)
@@ -192,239 +198,237 @@ unsigned char *buildAlphaData(Image *img)
     }
     return newdata;
 }
-
-
 class Ship {
-public:
-	Vec dir;
-	Vec pos;
-	Vec vel;
-	float angle;
-	float color[3];
-public:
-	Ship() {
-		VecZero(dir);
-		pos[0] = (Flt)(gl.xres/2);
-		pos[1] = (Flt)(gl.yres/2);
-		pos[2] = 0.0f;
-		VecZero(vel);
-		angle = 0.0;
-		color[0] = color[1] = color[2] = 1.0;
-	}
+	public:
+		Vec dir;
+		Vec pos;
+		Vec vel;
+		float angle;
+		float color[3];
+	public:
+		Ship() {
+			VecZero(dir);
+			pos[0] = (Flt)(gl.xres/2);
+			pos[1] = (Flt)(gl.yres/2);
+			pos[2] = 0.0f;
+			VecZero(vel);
+			angle = 0.0;
+			color[0] = color[1] = color[2] = 1.0;
+		}
 };
 
 class Bullet {
-public:
-	Vec pos;
-	Vec vel;
-	float color[3];
-	struct timespec time;
-public:
-	Bullet() { }
+	public:
+		Vec pos;
+		Vec vel;
+		float color[3];
+		struct timespec time;
+	public:
+		Bullet() { }
 };
 
 class Asteroid {
-public:
-	Vec pos;
-	Vec vel;
-	int nverts;
-	Flt radius;
-	Vec vert[8];
-	float angle;
-	float rotate;
-	float color[3];
-	struct Asteroid *prev;
-	struct Asteroid *next;
-public:
-	Asteroid() {
-		prev = NULL;
-		next = NULL;
-	}
+	public:
+		Vec pos;
+		Vec vel;
+		int nverts;
+		Flt radius;
+		Vec vert[8];
+		float angle;
+		float rotate;
+		float color[3];
+		struct Asteroid *prev;
+		struct Asteroid *next;
+	public:
+		Asteroid() {
+			prev = NULL;
+			next = NULL;
+		}
 };
 
 class Game {
-public:
-	Ship ship;
-	Asteroid *ahead;
-	Bullet *barr;
-	int nasteroids;
-	int nbullets;
-	struct timespec bulletTimer;
-	struct timespec mouseThrustTimer;
-	bool mouseThrustOn;
-public:
-	Game() {
-		ahead = NULL;
-		barr = new Bullet[MAX_BULLETS];
-		nasteroids = 0;
-		nbullets = 0;
-		mouseThrustOn = false;
-		//build 10 asteroids...
-		for (int j=0; j<10; j++) {
-			Asteroid *a = new Asteroid;
-			a->nverts = 8;
-			a->radius = rnd()*80.0 + 40.0;
-			Flt r2 = a->radius / 2.0;
-			Flt angle = 0.0f;
-			Flt inc = (PI * 2.0) / (Flt)a->nverts;
-			for (int i=0; i<a->nverts; i++) {
-				a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
-				a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
-				angle += inc;
+	public:
+		Ship ship;
+		Asteroid *ahead;
+		Bullet *barr;
+		int nasteroids;
+		int nbullets;
+		struct timespec bulletTimer;
+		struct timespec mouseThrustTimer;
+		bool mouseThrustOn;
+	public:
+		Game() {
+			ahead = NULL;
+			barr = new Bullet[MAX_BULLETS];
+			nasteroids = 0;
+			nbullets = 0;
+			mouseThrustOn = false;
+			//build 10 asteroids...
+			for (int j=0; j<10; j++) {
+				Asteroid *a = new Asteroid;
+				a->nverts = 8;
+				a->radius = rnd()*80.0 + 40.0;
+				Flt r2 = a->radius / 2.0;
+				Flt angle = 0.0f;
+				Flt inc = (PI * 2.0) / (Flt)a->nverts;
+				for (int i=0; i<a->nverts; i++) {
+					a->vert[i][0] = sin(angle) * (r2 + rnd() * a->radius);
+					a->vert[i][1] = cos(angle) * (r2 + rnd() * a->radius);
+					angle += inc;
+				}
+				a->pos[0] = (Flt)(rand() % gl.xres);
+				a->pos[1] = (Flt)(rand() % gl.yres);
+				a->pos[2] = 0.0f;
+				a->angle = 0.0;
+				a->rotate = rnd() * 4.0 - 2.0;
+				a->color[0] = 0.8;
+				a->color[1] = 0.8;
+				a->color[2] = 0.7;
+				a->vel[0] = (Flt)(rnd()*2.0-1.0);
+				a->vel[1] = (Flt)(rnd()*2.0-1.0);
+				//std::cout << "asteroid" << std::endl;
+				//add to front of linked list
+				a->next = ahead;
+				if (ahead != NULL)
+					ahead->prev = a;
+				ahead = a;
+				++nasteroids;
 			}
-			a->pos[0] = (Flt)(rand() % gl.xres);
-			a->pos[1] = (Flt)(rand() % gl.yres);
-			a->pos[2] = 0.0f;
-			a->angle = 0.0;
-			a->rotate = rnd() * 4.0 - 2.0;
-			a->color[0] = 0.8;
-			a->color[1] = 0.8;
-			a->color[2] = 0.7;
-			a->vel[0] = (Flt)(rnd()*2.0-1.0);
-			a->vel[1] = (Flt)(rnd()*2.0-1.0);
-			//std::cout << "asteroid" << std::endl;
-			//add to front of linked list
-			a->next = ahead;
-			if (ahead != NULL)
-				ahead->prev = a;
-			ahead = a;
-			++nasteroids;
+			clock_gettime(CLOCK_REALTIME, &bulletTimer);
 		}
-		clock_gettime(CLOCK_REALTIME, &bulletTimer);
-	}
-	~Game() {
-		delete [] barr;
-	}
+		~Game() {
+			delete [] barr;
+		}
 } g;
 
 //X Windows variables
 class X11_wrapper {
-private:
-	Display *dpy;
-	Window win;
-	GLXContext glc;
-public:
-	X11_wrapper() { }
-	X11_wrapper(int w, int h) {
-		GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
-		//GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
-		XSetWindowAttributes swa;
-		setup_screen_res(gl.xres, gl.yres);
-		dpy = XOpenDisplay(NULL);
-		if (dpy == NULL) {
-			std::cout << "\n\tcannot connect to X server" << std::endl;
-			exit(EXIT_FAILURE);
+	private:
+		Display *dpy;
+		Window win;
+		GLXContext glc;
+	public:
+		X11_wrapper() { }
+		X11_wrapper(int w, int h) {
+			GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+			//GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
+			XSetWindowAttributes swa;
+			setup_screen_res(gl.xres, gl.yres);
+			dpy = XOpenDisplay(NULL);
+			if (dpy == NULL) {
+				std::cout << "\n\tcannot connect to X server" << std::endl;
+				exit(EXIT_FAILURE);
+			}
+			Window root = DefaultRootWindow(dpy);
+			XWindowAttributes getWinAttr;
+			XGetWindowAttributes(dpy, root, &getWinAttr);
+			int fullscreen=0;
+			gl.xres = w;
+			gl.yres = h;
+			if (!w && !h) {
+				//Go to fullscreen.
+				gl.xres = getWinAttr.width;
+				gl.yres = getWinAttr.height;
+				//When window is fullscreen, there is no client window
+				//so keystrokes are linked to the root window.
+				XGrabKeyboard(dpy, root, False,
+						GrabModeAsync, GrabModeAsync, CurrentTime);
+				fullscreen=1;
+			}
+			XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
+			if (vi == NULL) {
+				std::cout << "\n\tno appropriate visual found\n" << std::endl;
+				exit(EXIT_FAILURE);
+			} 
+			Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
+			swa.colormap = cmap;
+			swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
+				PointerMotionMask | MotionNotify | ButtonPress | ButtonRelease |
+				StructureNotifyMask | SubstructureNotifyMask;
+			unsigned int winops = CWBorderPixel|CWColormap|CWEventMask;
+			if (fullscreen) {
+				winops |= CWOverrideRedirect;
+				swa.override_redirect = True;
+			}
+			win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
+					vi->depth, InputOutput, vi->visual, winops, &swa);
+			//win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
+			//vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
+			set_title();
+			glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
+			glXMakeCurrent(dpy, win, glc);
+			show_mouse_cursor(0);
 		}
-		Window root = DefaultRootWindow(dpy);
-		XWindowAttributes getWinAttr;
-		XGetWindowAttributes(dpy, root, &getWinAttr);
-		int fullscreen=0;
-		gl.xres = w;
-		gl.yres = h;
-		if (!w && !h) {
-			//Go to fullscreen.
-			gl.xres = getWinAttr.width;
-			gl.yres = getWinAttr.height;
-			//When window is fullscreen, there is no client window
-			//so keystrokes are linked to the root window.
-			XGrabKeyboard(dpy, root, False,
-				GrabModeAsync, GrabModeAsync, CurrentTime);
-			fullscreen=1;
+		~X11_wrapper() {
+			XDestroyWindow(dpy, win);
+			XCloseDisplay(dpy);
 		}
-		XVisualInfo *vi = glXChooseVisual(dpy, 0, att);
-		if (vi == NULL) {
-			std::cout << "\n\tno appropriate visual found\n" << std::endl;
-			exit(EXIT_FAILURE);
-		} 
-		Colormap cmap = XCreateColormap(dpy, root, vi->visual, AllocNone);
-		swa.colormap = cmap;
-		swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask |
-			PointerMotionMask | MotionNotify | ButtonPress | ButtonRelease |
-			StructureNotifyMask | SubstructureNotifyMask;
-		unsigned int winops = CWBorderPixel|CWColormap|CWEventMask;
-		if (fullscreen) {
-			winops |= CWOverrideRedirect;
-			swa.override_redirect = True;
+		void set_title() {
+			//Set the window title bar.
+			XMapWindow(dpy, win);
+			XStoreName(dpy, win, "Asteroids template");
 		}
-		win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
-			vi->depth, InputOutput, vi->visual, winops, &swa);
-		//win = XCreateWindow(dpy, root, 0, 0, gl.xres, gl.yres, 0,
-		//vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
-		set_title();
-		glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
-		glXMakeCurrent(dpy, win, glc);
-		show_mouse_cursor(0);
-	}
-	~X11_wrapper() {
-		XDestroyWindow(dpy, win);
-		XCloseDisplay(dpy);
-	}
-	void set_title() {
-		//Set the window title bar.
-		XMapWindow(dpy, win);
-		XStoreName(dpy, win, "Asteroids template");
-	}
-	void check_resize(XEvent *e) {
-		//The ConfigureNotify is sent by the
-		//server if the window is resized.
-		if (e->type != ConfigureNotify)
-			return;
-		XConfigureEvent xce = e->xconfigure;
-		if (xce.width != gl.xres || xce.height != gl.yres) {
-			//Window size did change.
-			reshape_window(xce.width, xce.height);
+		void check_resize(XEvent *e) {
+			//The ConfigureNotify is sent by the
+			//server if the window is resized.
+			if (e->type != ConfigureNotify)
+				return;
+			XConfigureEvent xce = e->xconfigure;
+			if (xce.width != gl.xres || xce.height != gl.yres) {
+				//Window size did change.
+				reshape_window(xce.width, xce.height);
+			}
 		}
-	}
-	void reshape_window(int width, int height) {
-		//window has been resized.
-		setup_screen_res(width, height);
-		glViewport(0, 0, (GLint)width, (GLint)height);
-		glMatrixMode(GL_PROJECTION); glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-		glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
-		set_title();
-	}
-	void setup_screen_res(const int w, const int h) {
-		gl.xres = w;
-		gl.yres = h;
-	}
-	void swapBuffers() {
-		glXSwapBuffers(dpy, win);
-	}
-	bool getXPending() {
-		return XPending(dpy);
-	}
-	XEvent getXNextEvent() {
-		XEvent e;
-		XNextEvent(dpy, &e);
-		return e;
-	}
-	void set_mouse_position(int x, int y) {
-		XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
-	}
-	void show_mouse_cursor(const int onoff) {
-		if (onoff) {
-			//this removes our own blank cursor.
-			XUndefineCursor(dpy, win);
-			return;
+		void reshape_window(int width, int height) {
+			//window has been resized.
+			setup_screen_res(width, height);
+			glViewport(0, 0, (GLint)width, (GLint)height);
+			glMatrixMode(GL_PROJECTION); glLoadIdentity();
+			glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+			glOrtho(0, gl.xres, 0, gl.yres, -1, 1);
+			set_title();
 		}
-		//vars to make blank cursor
-		Pixmap blank;
-		XColor dummy;
-		char data[1] = {0};
-		Cursor cursor;
-		//make a blank cursor
-		blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
-		if (blank == None)
-			std::cout << "error: out of memory." << std::endl;
-		cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
-		XFreePixmap(dpy, blank);
-		//this makes you the cursor. then set it using this function
-		XDefineCursor(dpy, win, cursor);
-		//after you do not need the cursor anymore use this function.
-		//it will undo the last change done by XDefineCursor
-		//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
-	}
+		void setup_screen_res(const int w, const int h) {
+			gl.xres = w;
+			gl.yres = h;
+		}
+		void swapBuffers() {
+			glXSwapBuffers(dpy, win);
+		}
+		bool getXPending() {
+			return XPending(dpy);
+		}
+		XEvent getXNextEvent() {
+			XEvent e;
+			XNextEvent(dpy, &e);
+			return e;
+		}
+		void set_mouse_position(int x, int y) {
+			XWarpPointer(dpy, None, win, 0, 0, 0, 0, x, y);
+		}
+		void show_mouse_cursor(const int onoff) {
+			if (onoff) {
+				//this removes our own blank cursor.
+				XUndefineCursor(dpy, win);
+				return;
+			}
+			//vars to make blank cursor
+			Pixmap blank;
+			XColor dummy;
+			char data[1] = {0};
+			Cursor cursor;
+			//make a blank cursor
+			blank = XCreateBitmapFromData (dpy, win, data, 1, 1);
+			if (blank == None)
+				std::cout << "error: out of memory." << std::endl;
+			cursor = XCreatePixmapCursor(dpy, blank, blank, &dummy, &dummy, 0, 0);
+			XFreePixmap(dpy, blank);
+			//this makes you the cursor. then set it using this function
+			XDefineCursor(dpy, win, cursor);
+			//after you do not need the cursor anymore use this function.
+			//it will undo the last change done by XDefineCursor
+			//(thus do only use ONCE XDefineCursor and then XUndefineCursor):
+		}
 } x11(0, 0);
 
 //function prototypes
@@ -435,6 +439,9 @@ void physics();
 void render();
 void credit_screen_render(int x, int y, GLuint textid);
 void credit_screen();
+//added
+void title_screen_render(int x, int y, GLuint textid);
+void title_screen();
 
 //==========================================================================
 // M A I N
@@ -495,39 +502,39 @@ void init_opengl(void)
 	glGenTextures(1, &gl.creditTexture);
 	glBindTexture(GL_TEXTURE_2D, gl.creditTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[0].width, img[0].height, 0, GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[0].width, img[0].height, 0, GL_RGB, GL_UNSIGNED_BYTE, img[0].data);
 
 	//Texture For thang's Picture
 	glGenTextures(1, &gl.thangTexture);
 	glBindTexture(GL_TEXTURE_2D, gl.thangTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-   	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[1].width, img[1].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[1].width, img[1].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[1].data);
 	//Texture for Joshua's picture
 	glGenTextures(1, &gl.JoshuaCTexture);
-    glBindTexture(GL_TEXTURE_2D, gl.JoshuaCTexture);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[2].width, img[2].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
+	glBindTexture(GL_TEXTURE_2D, gl.JoshuaCTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[2].width, img[2].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[2].data);
 	//Texture for bryan's picture
 	glGenTextures(1, &gl.bryanTexture);
-    glBindTexture(GL_TEXTURE_2D, gl.bryanTexture);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[3].width, img[3].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[3].data);
+	glBindTexture(GL_TEXTURE_2D, gl.bryanTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[3].width, img[3].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[3].data);
 	//Texture for ky's picture
 	glGenTextures(1, &gl.kyTexture);
-    glBindTexture(GL_TEXTURE_2D, gl.kyTexture);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[4].width, img[4].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
-    //texture for Eddie's picture
-    glGenTextures(1, &gl.eddieTexture);
-    glBindTexture(GL_TEXTURE_2D, gl.eddieTexture);
+	glBindTexture(GL_TEXTURE_2D, gl.kyTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, img[5].width, img[5].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[5].data);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[4].width, img[4].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[4].data);
+	//texture for Eddie's picture
+	glGenTextures(1, &gl.eddieTexture);
+	glBindTexture(GL_TEXTURE_2D, gl.eddieTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[5].width, img[5].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[5].data); 
 	//texture for Player's sprite
 	glGenTextures(1, &gl.playerTexture);
     //-------------------------------------------------------------------------
@@ -543,6 +550,13 @@ void init_opengl(void)
     unsigned char *playerData = buildAlphaData(&img[6]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img[6].width, img[6].height, 0, GL_RGBA, GL_UNSIGNED_BYTE, playerData);
     free(playerData);
+  //Texture For Title screen
+	glGenTextures(1, &gl.titleTexture);
+	glBindTexture(GL_TEXTURE_2D, gl.titleTexture);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[7].width, img[7].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[7].data); 
+
 }
 
 void normalize2d(Vec v)
@@ -682,6 +696,7 @@ int check_keys(XEvent *e)
 		case XK_Escape:
 			return 1;
 		case XK_f:
+            gl.showGame ^= 1;
 			break;
 		case XK_s:
 			break;
@@ -784,7 +799,7 @@ void physics()
 		if (ts > 2.5) {
 			//time to delete the bullet.
 			memcpy(&g.barr[i], &g.barr[g.nbullets-1],
-				sizeof(Bullet));
+					sizeof(Bullet));
 			g.nbullets--;
 			//do not increment i.
 			continue;
@@ -961,16 +976,37 @@ void physics()
 }
 void render()
 {
+    
+	Rect a;
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    //added
+    glColor3f(1.0,1.0,1.0); 
+	glBindTexture(GL_TEXTURE_2D, gl.titleTexture);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(0, gl.yres);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i(gl.xres, gl.yres);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres, 0);
+	glEnd();
+
+	a.bot = gl.yres - 400;
+	a.left = 650;
+	a.center = 500;
+	ggprint8b(&a, 16, 0x00ffff00, "Prototype TiTleScreen");
+	ggprint8b(&a, 16, 0x00ffff00, "Press F to start");
+	ggprint8b(&a, 16, 0x00ffff00, "Press C for Credit-During Gameplay");
+    if(gl.showGame) {
 	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
-	//
 	r.bot = gl.yres - 20;
 	r.left = 10;
 	r.center = 0;
 	ggprint8b(&r, 16, 0x00ff0000, "3350 - Asteroids");
 	ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
 	ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
-    ggprint8b(&r, 16, 0x00ffff00, "c credit screen");
+	ggprint8b(&r, 16, 0x00ffff00, "c credit screen");
+
 	//-------------------------------------------------------------------------
 	//Draw the ship
 	/*
