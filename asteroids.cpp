@@ -87,16 +87,19 @@ public:
     GLuint kyTexture;
 	GLuint eddieTexture;
 	GLuint creditTexture;
+	GLuint levelOneTexture;
 	int xres, yres;
 	char keys[65536];
     int showCredit;
 	int player;
+	int level1;
 	Global() {
 		xres = 1250;
 		yres = 900;
 		memset(keys, 0, 65536);
         showCredit = 0;
 		player = 1;
+		level1 = 0;
 	}
 } gl;
 
@@ -530,6 +533,7 @@ void init_opengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3, img[5].width, img[5].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[5].data);
 	//texture for Player's sprite
 	glGenTextures(1, &gl.playerTexture);
+	//
     //-------------------------------------------------------------------------
     //silhouette
     //this is similar to a sprite graphic
