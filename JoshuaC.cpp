@@ -1,7 +1,13 @@
+/*
+ *Author: Joshua C
+ */
+#include "math.h"
+#include <X11/Xlib.h>
+#include <GL/glx.h>
+#include "log.h"
+#include "fonts.h"
 
-
-
-void JCimage(int x, int y, GLuint textid)
+void JCimage (int x, int y, GLuint textid)
 {
     glColor3ub(255,255,255);
     static float angle = 0.0f;
@@ -30,9 +36,9 @@ void JCimage(int x, int y, GLuint textid)
     Rect r;
     unsigned int c = 0x00ffff44;
     r.bot = y - 20;
-    r.left = x - wid/2 -150;
+    r.left = x - wid/2 - 250;
     r.center = 0;
-    ggprint8b(&r, 16, c, "Joshua Chavez");
+    ggprint16(&r, 32, c, "Joshua Chavez");
 
 }
 
