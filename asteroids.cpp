@@ -3,6 +3,8 @@
 //author:  Gordon Griesel
 //modified by: Joshua Chavez
 //date:    2014 - 2018
+//modified by: Thang Hin
+//year of modification: spring 2019
 //mod spring 2015: added constructors
 //This program is a game starting point for a 3350 project.
 //
@@ -56,97 +58,146 @@ extern double timeSpan;
 extern double timeDiff(struct timespec *start, struct timespec *end);
 extern void timeCopy(struct timespec *dest, struct timespec *source);
 //-----------------------------------------------------------------------------
+class Image;
+
+class Sprite {
+public:
+    int onoff;
+    int frame;
+    double delay;
+    Vec pos;
+    Image *image;
+    GLuint tex;
+    struct timespec time;
+    Sprite() {
+        onoff = 0;
+        frame = 0;
+        image = NULL;
+        delay = 0.1;
+    }
+};
+
 
 
 class Global {
-	public:
-		GLuint thangTexture;
-		GLuint JoshuaCTexture;
-		GLuint bryanTexture;
-		GLuint kyTexture;
-		GLuint eddieTexture;
-		GLuint creditTexture;
-		//added for menu
-		GLuint titleTexture;
-		int xres, yres;
-		char keys[65536];
-		int showCredit;
-		int showGame;
-        Global() {
-			xres = 1250;//1250
-			yres = 900;//900
-			memset(keys, 0, 65536);
-			showCredit = 0;
-            showGame = 0;
-
-		}
+public:
+	Image *playerImage;
+	GLuint playerTexture;
+  GLuint thangTexture;
+	GLuint JoshuaCTexture;
+	GLuint bryanTexture;
+  GLuint kyTexture;
+	GLuint eddieTexture;
+	GLuint creditTexture;
+  GLuint titleTexture;
+	int xres, yres;
+	char keys[65536];
+  int showCredit;
+  int showGame;
+	int player;
+	Global() {
+		xres = 1250;
+		yres = 900;
+		memset(keys, 0, 65536);
+    showCredit = 0;
+    showGame = 0;
+		player = 1;
+	}
 } gl;
 
 class Image {
-	public:
-		int width, height;
-		unsigned char *data;
-		~Image() { delete [] data; }
-		Image(const char *fname) {
-			if (fname[0] == '\0')
-				return;
-			//printf("fname **%s**\n", fname);
-			int ppmFlag = 0;
-			char name[40];
-			strcpy(name, fname);
-			int slen = strlen(name);
-			char ppmname[80];
-			if (strncmp(name+(slen-4), ".ppm", 4) == 0)
-				ppmFlag = 1;
-			if (ppmFlag) {
-				strcpy(ppmname, name);
-			} else {
-				name[slen-4] = '\0';
-				//printf("name **%s**\n", name);
-				sprintf(ppmname,"%s.ppm", name);
-				//printf("ppmname **%s**\n", ppmname);
-				char ts[100];
-				//system("convert eball.jpg eball.ppm");
-				sprintf(ts, "convert %s %s", fname, ppmname);
-				system(ts);
-			}
-			//sprintf(ts, "%s", name);
-			FILE *fpi = fopen(ppmname, "r");
-			if (fpi) {
-				char line[200];
-				fgets(line, 200, fpi);
-				fgets(line, 200, fpi);
-				//skip comments and blank lines
-				while (line[0] == '#' || strlen(line) < 2)
-					fgets(line, 200, fpi);
-				sscanf(line, "%i %i", &width, &height);
-				fgets(line, 200, fpi);
-				//get pixel data
-				int n = width * height * 3;
-				data = new unsigned char[n];
-				for (int i=0; i<n; i++)
-					data[i] = fgetc(fpi);
-				fclose(fpi);
-			} else {
-				printf("ERROR opening image: %s\n",ppmname);
-				exit(0);
-			}
-			if (!ppmFlag)
-				unlink(ppmname);
-		}
+public:
+    int width, height;
+    unsigned char *data;
+    ~Image() { delete [] data; }
+    Image(const char *fname) {
+        if (fname[0] == '\0')
+            return;
+        //printf("fname **%s**\n", fname);
+        int ppmFlag = 0;
+        char name[40];
+        strcpy(name, fname);
+        int slen = strlen(name);
+        char ppmname[80];
+        if (strncmp(name+(slen-4), ".ppm", 4) == 0)
+            ppmFlag = 1;
+        if (ppmFlag) {
+            strcpy(ppmname, name);
+        } else {
+            name[slen-4] = '\0';
+            //printf("name **%s**\n", name);
+            sprintf(ppmname,"%s.ppm", name);
+            //printf("ppmname **%s**\n", ppmname);
+            char ts[100];
+            //system("convert eball.jpg eball.ppm");
+            sprintf(ts, "convert %s %s", fname, ppmname);
+            system(ts);
+        }
+        //sprintf(ts, "%s", name);
+        FILE *fpi = fopen(ppmname, "r");
+        if (fpi) {
+            char line[200];
+            fgets(line, 200, fpi);
+            fgets(line, 200, fpi);
+            //skip comments and blank lines
+            while (line[0] == '#' || strlen(line) < 2)
+                fgets(line, 200, fpi);
+            sscanf(line, "%i %i", &width, &height);
+            fgets(line, 200, fpi);
+            //get pixel data
+            int n = width * height * 3;
+            data = new unsigned char[n];
+            for (int i=0; i<n; i++)
+                data[i] = fgetc(fpi);
+            fclose(fpi);
+        } else {
+            printf("ERROR opening image: %s\n",ppmname);
+            exit(0);
+        }
+        if (!ppmFlag)
+            unlink(ppmname);
+    }
 };
-Image img[7] = {
-	"./image/Credit_Background.jpg",
-	"./image/Thang_Icon.png",
-	"./image/JC.png",
-	"./image/bryan_photo.png",
-	"./image/ky.png",
-	"./image/eddie.png",
-	"./image/forest.png"
-		//added in a png for the title
-		//
+Image img[8] = {
+"./image/Credit_Background.jpg",
+"./image/Thang_Icon.png",
+"./image/JC.png",
+"./image/bryan_photo.png",
+"./image/ky.png",
+"./image/eddie.png",
+"./image/walk.gif"
+"./image/forest.png"
 };
 
+unsigned char *buildAlphaData(Image *img)
+{
+    //add 4th component to RGB stream...
+    int i;
+    unsigned char *newdata, *ptr;
+    unsigned char *data = (unsigned char *)img->data;
+    newdata = (unsigned char *)malloc(img->width * img->height * 4);
+    ptr = newdata;
+    unsigned char a,b,c;
+    //use the first pixel in the image as the transparent color.
+    unsigned char t0 = *(data+0);
+    unsigned char t1 = *(data+1);
+    unsigned char t2 = *(data+2);
+    for (i=0; i<img->width * img->height * 3; i+=3) {
+        a = *(data+0);
+        b = *(data+1);
+        c = *(data+2);
+        *(ptr+0) = a;
+        *(ptr+1) = b;
+        *(ptr+2) = c;
+        *(ptr+3) = 1;
+        if (a==t0 && b==t1 && c==t2)
+            *(ptr+3) = 0;
+        //-----------------------------------------------
+        ptr += 4;
+        data += 3;
+    }
+    return newdata;
+}
 class Ship {
 	public:
 		Vec dir;
@@ -391,6 +442,7 @@ void credit_screen();
 //added
 void title_screen_render(int x, int y, GLuint textid);
 void title_screen();
+
 //==========================================================================
 // M A I N
 //==========================================================================
@@ -446,7 +498,6 @@ void init_opengl(void)
 	//Do this to allow fonts
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
-
 	//TEXTURE FOR SHOW CREDIT SCREEN
 	glGenTextures(1, &gl.creditTexture);
 	glBindTexture(GL_TEXTURE_2D, gl.creditTexture);
@@ -484,13 +535,27 @@ void init_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[5].width, img[5].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[5].data); 
-	//Texture For Title screen
+	//texture for Player's sprite
+	glGenTextures(1, &gl.playerTexture);
+    //-------------------------------------------------------------------------
+    //silhouette
+    //this is similar to a sprite graphic
+    //
+    glBindTexture(GL_TEXTURE_2D, gl.playerTexture);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    //
+    //must build a new set of data...
+    unsigned char *playerData = buildAlphaData(&img[6]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img[6].width, img[6].height, 0, GL_RGBA, GL_UNSIGNED_BYTE, playerData);
+    free(playerData);
+  //Texture For Title screen
 	glGenTextures(1, &gl.titleTexture);
 	glBindTexture(GL_TEXTURE_2D, gl.titleTexture);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[6].width, img[6].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[6].data); 
-
+	glTexImage2D(GL_TEXTURE_2D, 0, 3, img[7].width, img[7].height, 0,GL_RGB, GL_UNSIGNED_BYTE, img[7].data); 
 
 }
 
@@ -703,6 +768,7 @@ void buildAsteroidFragment(Asteroid *ta, Asteroid *a)
 
 void physics()
 {
+	/*
 	Flt d0,d1,dist;
 	//Update ship position
 	g.ship.pos[0] += g.ship.vel[0];
@@ -757,7 +823,7 @@ void physics()
 		i++;
 	}
 	//
-	//Update asteroid positions
+	//Update asteroid positions 
 	Asteroid *a = g.ahead;
 	while (a) {
 		a->pos[0] += a->vel[0];
@@ -835,6 +901,7 @@ void physics()
 			break;
 		a = a->next;
 	}
+	*/
 	//---------------------------------------------------
 	//check keys pressed now
 	if (gl.keys[XK_Left]) {
@@ -939,8 +1006,10 @@ void render()
 	ggprint8b(&r, 16, 0x00ffff00, "n bullets: %i", g.nbullets);
 	ggprint8b(&r, 16, 0x00ffff00, "n asteroids: %i", g.nasteroids);
 	ggprint8b(&r, 16, 0x00ffff00, "c credit screen");
+
 	//-------------------------------------------------------------------------
 	//Draw the ship
+	/*
 	glColor3fv(g.ship.color);
 	glPushMatrix();
 	glTranslatef(g.ship.pos[0], g.ship.pos[1], g.ship.pos[2]);
@@ -1030,26 +1099,38 @@ void render()
 		glVertex2f(b->pos[0]+1.0f, b->pos[1]+1.0f);
 		glEnd();
 	}
+	*/
 	extern void showThangPicture(int x, int y, GLuint textid);
 	extern void JCimage(int x, int y, GLuint textid);
 	extern void showBryanPicture(int x, int y, GLuint textid);
 	extern void kyImage(int x, int y, GLuint textid);
 	extern void showEddiePhoto(int x, int y, GLuint textid);
-	if (gl.showCredit) {
-		glBindTexture(GL_TEXTURE_2D, gl.creditTexture);
-		glColor3ub(0,0,0);
-		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
-		glTexCoord2f(0.0f, 0.0f); glVertex2i(0, gl.yres);
-		glTexCoord2f(1.0f, 0.0f); glVertex2i(gl.xres, gl.yres);
-		glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres, 0);
-		glEnd();
+	extern void playerSprite(int x, int y, GLuint textid);
+   	if (gl.showCredit) {
+        	glBindTexture(GL_TEXTURE_2D, gl.creditTexture);
+        	glColor3ub(0,0,0);
+        	glBegin(GL_QUADS);
+            	glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
+            	glTexCoord2f(0.0f, 0.0f); glVertex2i(0, gl.yres);
+            	glTexCoord2f(1.0f, 0.0f); glVertex2i(gl.xres, gl.yres);
+            	glTexCoord2f(1.0f, 1.0f); glVertex2i(gl.xres, 0);
+        	glEnd();
 		showThangPicture(1200,1000, gl.thangTexture);
 		JCimage(1200, 800, gl.JoshuaCTexture);
 		showBryanPicture(1200, 600, gl.bryanTexture);
 		kyImage(1200, 400, gl.kyTexture);
 		showEddiePhoto(1200, 200, gl.eddieTexture);
-	}
     }
+	if (gl.player) {
+		glBindTexture(GL_TEXTURE_2D, gl.playerTexture);
+		glColor3ub(0,0,0);
+		glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 1.0f); glVertex2i(0, 0);
+		glTexCoord2f(0.0f, 0.0f); glVertex2i(0, 20);
+		glTexCoord2f(1.0f, 0.0f); glVertex2i(20, 20);
+		glTexCoord2f(1.0f, 1.0f); glVertex2i(20, 0);
+		glEnd();
+		playerSprite(200, 200, gl.playerTexture);
+	}
 }
 
