@@ -35,3 +35,16 @@ void showEddiePhoto (int x, int y, GLuint textid) {
     r.center = 0;
     ggprint16(&r, 32, 0x00ffff44, "Eddie Ekpo");
 }
+
+void drawFloor(int height, int width) {
+    glColor3ub(150,75,0);
+    glpushMatrux();
+    //Will insert box here: glTranslatef(x,y,0);
+    glBegin(GL_QUADS)
+        glVertex2i(0, 0);
+        glVertex2i(0, 0);
+        glVertex2i(0, 0);
+        glVertex2i(0, 0);
+    glEnd();
+    glPopMatrix();
+}
